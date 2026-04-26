@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
-import { build } from '../helper'
+import { build } from '../helper.ts'
 import mongoose from 'mongoose'
 
 describe('Auth Routes', () => {

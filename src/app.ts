@@ -1,11 +1,15 @@
-import { join } from 'node:path'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import AutoLoad, { AutoloadPluginOptions } from '@fastify/autoload'
-import { FastifyPluginAsync, FastifyServerOptions } from 'fastify'
+import type { FastifyPluginAsync, FastifyServerOptions } from 'fastify'
 import {
   serializerCompiler,
   validatorCompiler,
-  ZodTypeProvider
+  type ZodTypeProvider
 } from 'fastify-type-provider-zod'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 export interface AppOptions extends FastifyServerOptions, Partial<AutoloadPluginOptions> {
 
@@ -28,13 +32,15 @@ const app: FastifyPluginAsync<AppOptions> = async (
   // This loads all plugins defined in plugins
   void fastify.register(AutoLoad, {
     dir: join(__dirname, 'plugins'),
-    options: opts
+    options: opts,
+    forceESM: true
   })
 
   // This loads all plugins defined in routes
   void fastify.register(AutoLoad, {
     dir: join(__dirname, 'routes'),
-    options: opts
+    options: opts,
+    forceESM: true
   })
 }
 

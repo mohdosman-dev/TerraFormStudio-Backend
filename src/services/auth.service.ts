@@ -1,4 +1,4 @@
-import { User, IUser } from '../models/User'
+import { User, type IUser } from '../models/User.ts'
 
 export class AuthService {
   async register(email: string, passwordHash: string): Promise<IUser> {

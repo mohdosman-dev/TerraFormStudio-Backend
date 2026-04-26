@@ -1,6 +1,6 @@
-import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
+import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
 import { z } from 'zod'
-import { authService } from '../../services/auth.service'
+import { authService } from '../../services/auth.service.ts'
 
 const auth: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.post('/signup', {
@@ -32,7 +32,7 @@ const auth: FastifyPluginAsyncZod = async (fastify, _opts) => {
     return reply.status(201).send({
       message: 'User created successfully',
       user: {
-        id: user._id as string,
+        id: user._id.toString(),
         email: user.email
       }
     })
@@ -64,7 +64,7 @@ const auth: FastifyPluginAsyncZod = async (fastify, _opts) => {
     }
 
     const token = fastify.jwt.sign({
-      id: user._id,
+      id: user._id.toString(),
       email: user.email,
       roles: user.roles
     })
@@ -72,7 +72,7 @@ const auth: FastifyPluginAsyncZod = async (fastify, _opts) => {
     return reply.send({
       token,
       user: {
-        id: user._id as string,
+        id: user._id.toString(),
         email: user.email,
         roles: user.roles
       }
@@ -93,7 +93,14 @@ const auth: FastifyPluginAsyncZod = async (fastify, _opts) => {
       }
     }
   }, async (request, _reply) => {
-    return { user: request.user as any }
+    const user = request.user as any
+    return {
+      user: {
+        id: user.id || user._id.toString(),
+        email: user.email,
+        roles: user.roles
+      }
+    }
   })
 }
 
