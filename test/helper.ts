@@ -1,40 +1,25 @@
-// This file contains code that we reuse between our tests.
 import * as path from 'node:path'
-import * as test from 'node:test'
-const helper = require('fastify-cli/helper.js')
+import { afterAll, beforeAll } from 'vitest'
+import fastify from 'fastify'
+import fp from 'fastify-plugin'
+import App from '../src/app'
+import { MongoMemoryServer } from 'mongodb-memory-server'
+import mongoose from 'mongoose'
 
-export type TestContext = {
-  after: typeof test.after
-}
+let mongod: MongoMemoryServer
 
-const AppPath = path.join(__dirname, '..', 'src', 'app.ts')
+async function build() {
+  mongod = await MongoMemoryServer.create()
+  const uri = mongod.getUri()
 
-// Fill in this config with all the configurations
-// needed for testing the application
-function config () {
-  return {
-    skipOverride: true // Register our application with fastify-plugin
-  }
-}
-
-// Automatically build and tear down our instance
-async function build (t: TestContext) {
-  // you can set all the options supported by the fastify CLI command
-  const argv = [AppPath]
-
-  // fastify-plugin ensures that all decorators
-  // are exposed for testing purposes, this is
-  // different from the production setup
-  const app = await helper.build(argv, config())
-
-  // Tear down our app after we are done
-  // eslint-disable-next-line no-void
-  t.after(() => void app.close())
+  const app = fastify()
+  
+  // Register the app with testing options
+  void app.register(fp(App), {
+    uri // Pass the memory server URI to the mongoose plugin
+  })
 
   return app
 }
 
-export {
-  config,
-  build
-}
+export { build }
