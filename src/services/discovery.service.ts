@@ -5,6 +5,7 @@ export class DiscoveryService {
     return HomeSection.findOne({ status: 'published' })
       .populate('sections.artisanId')
       .populate('sections.productIds')
+      .populate('sections.collectionIds')
       .sort({ updatedAt: -1 })
   }
 

@@ -4,7 +4,7 @@ export interface IHomeSection extends Document {
   name: string
   status: 'published' | 'draft' | 'archived'
   sections: Array<{
-    type: 'hero' | 'artisan_spotlight' | 'product_row' | 'editorial'
+    type: 'hero' | 'artisan_spotlight' | 'product_row' | 'collection_row' | 'editorial'
     title?: string
     subtitle?: string
     image?: {
@@ -19,6 +19,7 @@ export interface IHomeSection extends Document {
     }
     artisanId?: mongoose.Types.ObjectId
     productIds?: mongoose.Types.ObjectId[]
+    collectionIds?: mongoose.Types.ObjectId[]
     content?: string
     sortOrder: number
   }>
@@ -37,7 +38,7 @@ const HomeSectionSchema: Schema = new Schema(
     sections: [{
       type: {
         type: String,
-        enum: ['hero', 'artisan_spotlight', 'product_row', 'editorial'],
+        enum: ['hero', 'artisan_spotlight', 'product_row', 'collection_row', 'editorial'],
         required: true
       },
       title: String,
@@ -57,6 +58,7 @@ const HomeSectionSchema: Schema = new Schema(
       },
       artisanId: { type: Schema.Types.ObjectId, ref: 'Artisan' },
       productIds: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
+      collectionIds: [{ type: Schema.Types.ObjectId, ref: 'Collection' }],
       content: String,
       sortOrder: { type: Number, required: true }
     }]

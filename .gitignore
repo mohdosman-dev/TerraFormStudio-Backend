@@ -51,6 +51,7 @@ profile-*
 # vscode
 .vscode
 *code-workspace
+.gemini
 
 # clinic
 profile*
