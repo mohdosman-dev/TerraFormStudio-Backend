@@ -34,6 +34,10 @@ const collectionRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
       body: z.object({
         title: z.string(),
         description: z.string().optional(),
+        heroImage: z.object({
+          url: z.string(),
+          alt: z.string()
+        }).optional(),
         sortOrder: z.number().optional()
       }),
       response: {

@@ -35,7 +35,15 @@ const artisanRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
         displayName: z.string(),
         brandName: z.string(),
         bioShort: z.string().optional(),
-        bioLong: z.string().optional()
+        bioLong: z.string().optional(),
+        heroImage: z.object({
+          url: z.string(),
+          alt: z.string()
+        }).optional(),
+        gallery: z.array(z.object({
+          url: z.string(),
+          alt: z.string()
+        })).optional()
       }),
       response: {
         201: z.any()

@@ -42,6 +42,12 @@ const productRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
         price: z.object({
           amount: z.number()
         }),
+        media: z.array(z.object({
+          url: z.string(),
+          alt: z.string(),
+          type: z.enum(['image', 'video']).default('image'),
+          sortOrder: z.number()
+        })).optional(),
         inventory: z.object({
           mode: z.enum(['unique', 'regular']),
           quantityAvailable: z.number().optional()
