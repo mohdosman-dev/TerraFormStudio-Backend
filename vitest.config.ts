@@ -7,6 +7,8 @@ export default defineConfig({
     environment: 'node',
     alias: {
       '@': path.resolve(__dirname, './src')
-    }
+    },
+    include: ['test/**/*.test.ts'],
+    exclude: ['dist/**', 'node_modules/**']
   }
 })
