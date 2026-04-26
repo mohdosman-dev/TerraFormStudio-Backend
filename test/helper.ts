@@ -1,14 +1,11 @@
-import * as path from 'node:path'
-import { afterAll, beforeAll } from 'vitest'
 import fastify from 'fastify'
 import fp from 'fastify-plugin'
 import App from '../src/app.ts'
 import { MongoMemoryServer } from 'mongodb-memory-server'
-import mongoose from 'mongoose'
 
 let mongod: MongoMemoryServer
 
-async function build() {
+async function build(t?: any) {
   mongod = await MongoMemoryServer.create()
   const uri = mongod.getUri()
 
@@ -18,6 +15,10 @@ async function build() {
   void app.register(fp(App), {
     uri // Pass the memory server URI to the mongoose plugin
   })
+
+  if (t && typeof t.after === 'function') {
+    t.after(() => app.close())
+  }
 
   return app
 }
