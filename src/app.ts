@@ -1,35 +1,35 @@
-import { join } from 'node:path'
-import AutoLoad, { AutoloadPluginOptions } from '@fastify/autoload'
-import type { FastifyPluginAsync, FastifyServerOptions } from 'fastify'
+import { join } from "node:path";
+import AutoLoad, { AutoloadPluginOptions } from "@fastify/autoload";
+import type { FastifyPluginAsync, FastifyServerOptions } from "fastify";
 import {
   serializerCompiler,
-  validatorCompiler
-} from 'fastify-type-provider-zod'
+  validatorCompiler,
+} from "fastify-type-provider-zod";
 
-export interface AppOptions extends FastifyServerOptions, Partial<AutoloadPluginOptions> {
-  uri?: string
+export interface AppOptions
+  extends FastifyServerOptions, Partial<AutoloadPluginOptions> {
+  uri?: string;
 }
 
-const options: AppOptions = {
-}
+const options: AppOptions = {};
 
 const app: FastifyPluginAsync<AppOptions> = async (
   fastify,
-  opts
+  opts,
 ): Promise<void> => {
-  fastify.setValidatorCompiler(validatorCompiler)
-  fastify.setSerializerCompiler(serializerCompiler)
+  fastify.setValidatorCompiler(validatorCompiler);
+  fastify.setSerializerCompiler(serializerCompiler);
 
   void fastify.register(AutoLoad, {
-    dir: join(__dirname, 'plugins'),
-    options: opts
-  })
+    dir: join(__dirname, "plugins"),
+    options: opts,
+  });
 
   void fastify.register(AutoLoad, {
-    dir: join(__dirname, 'routes'),
-    options: opts
-  })
-}
+    dir: join(__dirname, "routes"),
+    options: { ...opts, prefix: opts.uri || "/api" },
+  });
+};
 
-export default app
-export { app, options }
+export default app;
+export { app, options };
