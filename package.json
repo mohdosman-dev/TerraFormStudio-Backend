@@ -13,7 +13,7 @@
     "build:ts": "tsc",
     "watch:ts": "tsc -w",
     "dev": "fastify start -w -l info -P -i tsx src/app.ts",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts && tsx scripts/seed-homepage.ts"
   },
   "keywords": [],
   "author": "",

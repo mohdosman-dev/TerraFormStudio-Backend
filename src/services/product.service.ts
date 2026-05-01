@@ -1,41 +1,59 @@
-import { Product, type IProduct } from '../models/Product.ts'
-import mongoose from 'mongoose'
+import { Product, type IProduct } from "../models/Product.ts";
+import mongoose from "mongoose";
 
 export class ProductService {
   async create(artisanId: string, data: Partial<IProduct>): Promise<IProduct> {
     const product = new Product({
       ...data,
-      artisanId: new mongoose.Types.ObjectId(artisanId)
-    })
-    await product.save()
-    return product
+      artisanId: new mongoose.Types.ObjectId(artisanId),
+    });
+    await product.save();
+    return product;
   }
 
   async findBySlug(slug: string): Promise<IProduct | null> {
-    return Product.findOne({ slug, status: 'published' }).populate('artisanId')
+    const product = await Product.findOne({ slug, status: "published" })
+      .populate("artisanId")
+      .populate("discovery.relatedProductIds");
+    console.log(product);
+
+    if (!product) return null;
+    return product;
   }
 
   async listPublished(filters: any = {}): Promise<IProduct[]> {
-    const query = { status: 'published', ...filters }
-    return Product.find(query).sort({ createdAt: -1 }).populate('artisanId')
+    const query = { status: "published", ...filters };
+    return Product.find(query)
+      .sort({ createdAt: -1 })
+      .populate("artisanId")
+      .populate("discovery.relatedProductIds");
   }
 
-  async update(id: string, artisanId: string, data: Partial<IProduct>, isAdmin: boolean): Promise<IProduct | null> {
-    const query = isAdmin ? { _id: id } : { _id: id, artisanId }
-    const product = await Product.findOne(query)
-    
-    if (!product) return null
+  async update(
+    id: string,
+    artisanId: string,
+    data: Partial<IProduct>,
+    isAdmin: boolean,
+  ): Promise<IProduct | null> {
+    const query = isAdmin ? { _id: id } : { _id: id, artisanId };
+    const product = await Product.findOne(query);
 
-    Object.assign(product, data)
-    await product.save()
-    return product
+    if (!product) return null;
+
+    Object.assign(product, data);
+    await product.save();
+    return product;
   }
 
-  async softDelete(id: string, artisanId: string, isAdmin: boolean): Promise<boolean> {
-    const query = isAdmin ? { _id: id } : { _id: id, artisanId }
-    const result = await Product.updateOne(query, { status: 'archived' })
-    return result.modifiedCount > 0
+  async softDelete(
+    id: string,
+    artisanId: string,
+    isAdmin: boolean,
+  ): Promise<boolean> {
+    const query = isAdmin ? { _id: id } : { _id: id, artisanId };
+    const result = await Product.updateOne(query, { status: "archived" });
+    return result.modifiedCount > 0;
   }
 }
 
-export const productService = new ProductService()
+export const productService = new ProductService();

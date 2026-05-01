@@ -60,24 +60,51 @@ async function seed() {
         artisanId: elena._id,
         title: 'Ochre Ribbed Vase',
         subtitle: 'Tactile stoneware',
+        descriptionShort: 'A hand-thrown vase with an organic, wavy texture.',
+        descriptionLong: 'Working with the volcanic soil of Tuscany, this ochre ribbed vase captures the raw, untamed essence of the landscape. Each piece is hand-thrown and features minor variations in glaze, making it truly unique.',
         price: { amount: 120, currency: 'USD' },
         media: [{ url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBzy89Q5GCkgZqpWu6p5IluC0pZo51jeo5I-fQ1MLAHqvR9wXlqbYy7iY7g6noF_gtowbi-PRVqKtwWixCxZ2HwvkJVcJJ27ZET1VbnVgCCSG7WkAJvGYHtOYufh82WK-IyU2B3R8Eun6kDOc1C1h2d6bLnw-M04CllmvEI6qYs1wElwtbj3ogI-oeUvhDLMpj4vGt43fKNXkerMkDrTGDA6G4DHfX6IHAMCvT9P-NTtUomNHHoL75-6-NdDMNQE11dKUUd_QCz5eg', alt: 'Ochre Vase', type: 'image', sortOrder: 0 }],
+        specifications: {
+          material: 'Tuscan Stoneware',
+          technique: 'Wheel-thrown',
+          glaze: 'Ochre Matte',
+          dimensions: { widthCm: 15, heightCm: 25, weightGrams: 1200 },
+          care: 'Hand wash only'
+        },
         status: 'published'
       },
       {
         artisanId: elena._id,
         title: 'Luna Mug',
         subtitle: 'Minimalist vessel',
+        descriptionShort: 'A minimal mug for your morning ritual.',
+        descriptionLong: 'The Luna mug is designed for the quiet moments of the morning. Its balanced weight and smooth glaze provide a tactile experience that complements the ritual of coffee or tea.',
         price: { amount: 42, currency: 'USD' },
         media: [{ url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCbnjuJ3ukmjY7udfqsQgN_Y3zsJ__DLMGBOWcZtQwNwrJuFsrCIj0Vff40gWuAl3DUxtKCdTlPAor3Sb0_tNIQjL9Esxffk_sUHZBRa8B1AWyUD_85gJHF1ST4z4JULRAV-z61UauI0Lz6KxTNBlToQSrSlru2SdWakyADWCvuLe5is4pqzYjPvKMbIktVsV_xhX3VCgD7G34Vwe7p1R4vxTJrXnAOeubhnM0ROyN27c5-2gSVC7ZjK1nvBLQ8Pdob_W_YqU0M1OY', alt: 'Luna Mug', type: 'image', sortOrder: 0 }],
+        specifications: {
+          material: 'White Stoneware',
+          technique: 'Wheel-thrown',
+          glaze: 'Satin White',
+          dimensions: { widthCm: 9, heightCm: 10, weightGrams: 350 },
+          care: 'Dishwasher safe'
+        },
         status: 'published'
       },
       {
         artisanId: elena._id,
         title: 'Sand Bowl',
         subtitle: 'Hand-built stoneware',
+        descriptionShort: 'A wide bowl with a sandy, textured exterior.',
+        descriptionLong: 'The Sand Bowl is a celebration of texture. Hand-built using a coiling technique, the exterior is left unglazed to showcase the natural grit of the clay, while the interior features a contrasting clear gloss.',
         price: { amount: 85, currency: 'USD' },
         media: [{ url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAFhHiBmu7IeCus5XF8ujaNUDAzxbz1Jb92nxnGQU5zaRnl9LUXBOvngM-0VMcw2RllCG2r6ErCmLU1lBaVia6_CPaiCJf6g4Aln58OLc_RjhFysLkoxW5hJl8GCTGG-3r_30wBVCA7hr9-Q4TwBWe801smjmq4MpDUx4IfWzfPqGA1pVY7foVgE2COQjAPAHOi0LS357CgSdOWv3rAp0KlcbC6VO7dAPJI-R-t_xxEZnWJx6lHzlE-CnVH3v4YZ0_aHoM43kE3aik', alt: 'Sand Bowl', type: 'image', sortOrder: 0 }],
+        specifications: {
+          material: 'Grit Stoneware',
+          technique: 'Hand-built (Coil)',
+          glaze: 'Clear Gloss (Interior)',
+          dimensions: { widthCm: 22, heightCm: 8, weightGrams: 800 },
+          care: 'Hand wash only'
+        },
         status: 'published'
       }
     ])
