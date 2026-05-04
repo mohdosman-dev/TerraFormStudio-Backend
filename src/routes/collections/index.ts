@@ -6,6 +6,8 @@ const collectionRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   // Public routes
   fastify.get('/', {
     schema: {
+      tags: ['Collections'],
+      summary: 'List all published collections',
       response: {
         200: z.array(z.any())
       }
@@ -16,6 +18,8 @@ const collectionRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
 
   fastify.get('/:slug', {
     schema: {
+      tags: ['Collections'],
+      summary: 'Get collection details by slug',
       params: z.object({ slug: z.string() }),
       response: {
         200: z.any()
@@ -31,6 +35,9 @@ const collectionRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.post('/', {
     onRequest: [fastify.authenticate],
     schema: {
+      tags: ['Collections'],
+      summary: 'Create a new collection (Admin only)',
+      security: [{ bearerAuth: [] }],
       body: z.object({
         title: z.string(),
         description: z.string().optional(),
@@ -56,6 +63,9 @@ const collectionRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.patch('/:id', {
     onRequest: [fastify.authenticate],
     schema: {
+      tags: ['Collections'],
+      summary: 'Update a collection (Admin only)',
+      security: [{ bearerAuth: [] }],
       params: z.object({ id: z.string() }),
       body: z.any(),
       response: {

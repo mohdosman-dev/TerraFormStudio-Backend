@@ -5,6 +5,8 @@ import { discoveryService } from '../../services/discovery.service.ts'
 const discoveryRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.get('/', {
     schema: {
+      tags: ['Discovery'],
+      summary: 'Get active homepage configuration',
       response: {
         200: z.any()
       }
@@ -19,6 +21,9 @@ const discoveryRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.post('/sections', {
     onRequest: [fastify.authenticate],
     schema: {
+      tags: ['Discovery'],
+      summary: 'Create a new homepage configuration (Admin only)',
+      security: [{ bearerAuth: [] }],
       body: z.object({
         name: z.string(),
         status: z.enum(['published', 'draft', 'archived']),

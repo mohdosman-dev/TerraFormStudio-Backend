@@ -6,6 +6,9 @@ const cartRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.get('/', {
     onRequest: [fastify.authenticate],
     schema: {
+      tags: ['Cart'],
+      summary: 'Get current user cart',
+      security: [{ bearerAuth: [] }],
       response: {
         200: z.any()
       }
@@ -18,6 +21,9 @@ const cartRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.post('/items', {
     onRequest: [fastify.authenticate],
     schema: {
+      tags: ['Cart'],
+      summary: 'Add an item to the cart',
+      security: [{ bearerAuth: [] }],
       body: z.object({
         productId: z.string(),
         quantity: z.number().int().positive().default(1)
@@ -39,6 +45,9 @@ const cartRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.delete('/items/:productId', {
     onRequest: [fastify.authenticate],
     schema: {
+      tags: ['Cart'],
+      summary: 'Remove an item from the cart',
+      security: [{ bearerAuth: [] }],
       params: z.object({ productId: z.string() }),
       response: {
         200: z.any()

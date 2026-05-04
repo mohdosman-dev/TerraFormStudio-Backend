@@ -9,6 +9,8 @@ const productRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
     "/",
     {
       schema: {
+        tags: ['Products'],
+        summary: 'List all published products',
         querystring: z.object({
           material: z.string().optional(),
           technique: z.string().optional(),
@@ -27,6 +29,8 @@ const productRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
     "/:slug",
     {
       schema: {
+        tags: ['Products'],
+        summary: 'Get product details by slug',
         params: z.object({ slug: z.string() }),
         response: {
           200: z.any(),
@@ -49,6 +53,9 @@ const productRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
     {
       onRequest: [fastify.authenticate],
       schema: {
+        tags: ['Products'],
+        summary: 'Create a new product (Artisan only)',
+        security: [{ bearerAuth: [] }],
         body: z.object({
           title: z.string(),
           subtitle: z.string().optional(),
@@ -99,6 +106,9 @@ const productRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
     {
       onRequest: [fastify.authenticate],
       schema: {
+        tags: ['Products'],
+        summary: 'Update a product',
+        security: [{ bearerAuth: [] }],
         params: z.object({ id: z.string() }),
         body: z.any(),
         response: {
@@ -129,6 +139,9 @@ const productRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
     {
       onRequest: [fastify.authenticate],
       schema: {
+        tags: ['Products'],
+        summary: 'Soft delete (archive) a product',
+        security: [{ bearerAuth: [] }],
         params: z.object({ id: z.string() }),
         response: {
           200: z.object({ success: z.boolean() }),

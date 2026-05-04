@@ -7,6 +7,9 @@ const checkoutRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.post('/', {
     onRequest: [fastify.authenticate],
     schema: {
+      tags: ['Checkout'],
+      summary: 'Initialize a checkout session',
+      security: [{ bearerAuth: [] }],
       response: {
         201: z.any()
       }
@@ -24,6 +27,9 @@ const checkoutRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.put('/:id/shipping', {
     onRequest: [fastify.authenticate],
     schema: {
+      tags: ['Checkout'],
+      summary: 'Update shipping details for a checkout session',
+      security: [{ bearerAuth: [] }],
       params: z.object({ id: z.string() }),
       body: z.object({
         fullName: z.string(),
@@ -47,6 +53,9 @@ const checkoutRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.put('/:id/payment', {
     onRequest: [fastify.authenticate],
     schema: {
+      tags: ['Checkout'],
+      summary: 'Process payment for a checkout session (Mock)',
+      security: [{ bearerAuth: [] }],
       params: z.object({ id: z.string() }),
       response: {
         200: z.any()
@@ -66,6 +75,9 @@ const checkoutRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.post('/:id/complete', {
     onRequest: [fastify.authenticate],
     schema: {
+      tags: ['Checkout'],
+      summary: 'Complete a checkout session and create an order',
+      security: [{ bearerAuth: [] }],
       params: z.object({ id: z.string() }),
       response: {
         201: z.any()

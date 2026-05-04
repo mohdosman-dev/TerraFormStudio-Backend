@@ -5,6 +5,8 @@ import { authService } from '../../services/auth.service.ts'
 const auth: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.post('/signup', {
     schema: {
+      tags: ['Authentication'],
+      summary: 'Register a new user',
       body: z.object({
         email: z.string().email(),
         password: z.string().min(8)
@@ -40,6 +42,8 @@ const auth: FastifyPluginAsyncZod = async (fastify, _opts) => {
 
   fastify.post('/login', {
     schema: {
+      tags: ['Authentication'],
+      summary: 'Login with email and password',
       body: z.object({
         email: z.string().email(),
         password: z.string()
@@ -82,6 +86,9 @@ const auth: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.get('/me', {
     onRequest: [fastify.authenticate],
     schema: {
+      tags: ['Authentication'],
+      summary: 'Get current user profile',
+      security: [{ bearerAuth: [] }],
       response: {
         200: z.object({
           user: z.object({

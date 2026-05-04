@@ -6,8 +6,10 @@ const artisanRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   // Public routes
   fastify.get('/', {
     schema: {
+      tags: ['Artisans'],
+      summary: 'List all published artisans',
       response: {
-        200: z.array(z.any()) // Simplify for now, can refine later
+        200: z.array(z.any())
       }
     }
   }, async () => {
@@ -16,6 +18,8 @@ const artisanRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
 
   fastify.get('/:slug', {
     schema: {
+      tags: ['Artisans'],
+      summary: 'Get artisan details by slug',
       params: z.object({ slug: z.string() }),
       response: {
         200: z.any()
@@ -31,6 +35,9 @@ const artisanRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.post('/apply', {
     onRequest: [fastify.authenticate],
     schema: {
+      tags: ['Artisans'],
+      summary: 'Apply to become an artisan',
+      security: [{ bearerAuth: [] }],
       body: z.object({
         displayName: z.string(),
         brandName: z.string(),
@@ -58,6 +65,9 @@ const artisanRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.patch('/:id', {
     onRequest: [fastify.authenticate],
     schema: {
+      tags: ['Artisans'],
+      summary: 'Update artisan profile',
+      security: [{ bearerAuth: [] }],
       params: z.object({ id: z.string() }),
       body: z.any(),
       response: {
@@ -75,6 +85,9 @@ const artisanRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.post('/:id/approve', {
     onRequest: [fastify.authenticate],
     schema: {
+      tags: ['Artisans'],
+      summary: 'Approve an artisan application (Admin only)',
+      security: [{ bearerAuth: [] }],
       params: z.object({ id: z.string() }),
       response: {
         200: z.any()

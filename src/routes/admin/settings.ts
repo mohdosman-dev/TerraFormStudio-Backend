@@ -5,6 +5,9 @@ import { settingsService } from '../../services/settings.service.ts'
 const settingsRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.get('/', {
     schema: {
+      tags: ['Admin'],
+      summary: 'Get system settings',
+      security: [{ bearerAuth: [] }],
       response: {
         200: z.any()
       }
@@ -15,6 +18,9 @@ const settingsRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
 
   fastify.patch('/', {
     schema: {
+      tags: ['Admin'],
+      summary: 'Update system settings',
+      security: [{ bearerAuth: [] }],
       body: z.object({
         general: z.object({
           defaultCurrency: z.enum(['USD', 'EUR', 'GBP'])

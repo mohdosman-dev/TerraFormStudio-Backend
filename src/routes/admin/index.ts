@@ -19,6 +19,9 @@ const adminRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
 
   fastify.get('/dashboard/overview', {
     schema: {
+      tags: ['Admin'],
+      summary: 'Get dashboard overview statistics',
+      security: [{ bearerAuth: [] }],
       querystring: z.object({
         range: z.enum(['6months', '1year']).default('6months')
       }),

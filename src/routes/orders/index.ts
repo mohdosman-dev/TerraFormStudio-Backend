@@ -7,6 +7,9 @@ const orderRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
 
   fastify.get('/', {
     schema: {
+      tags: ['Orders'],
+      summary: 'List current user orders',
+      security: [{ bearerAuth: [] }],
       response: {
         200: z.array(z.any())
       }
@@ -18,6 +21,9 @@ const orderRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
 
   fastify.get('/:id', {
     schema: {
+      tags: ['Orders'],
+      summary: 'Get order details',
+      security: [{ bearerAuth: [] }],
       params: z.object({ id: z.string() }),
       response: {
         200: z.any()

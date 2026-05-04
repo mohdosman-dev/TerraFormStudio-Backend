@@ -7,6 +7,9 @@ const discoveryAdminRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   
   fastify.get('/active', {
     schema: {
+      tags: ['Admin'],
+      summary: 'Get active homepage configuration for editing',
+      security: [{ bearerAuth: [] }],
       response: {
         200: z.any()
       }
@@ -17,6 +20,9 @@ const discoveryAdminRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
 
   fastify.patch('/:id', {
     schema: {
+      tags: ['Admin'],
+      summary: 'Update a homepage configuration',
+      security: [{ bearerAuth: [] }],
       params: z.object({
         id: z.string()
       }),

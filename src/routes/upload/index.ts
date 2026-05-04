@@ -6,6 +6,9 @@ const uploadRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.post('/', {
     onRequest: [fastify.authenticate],
     schema: {
+      tags: ['System'],
+      summary: 'Upload a file (Multipart or Base64)',
+      security: [{ bearerAuth: [] }],
       querystring: z.object({
         model: z.enum(['artisan', 'product', 'collection', 'general']).default('general')
       }),
