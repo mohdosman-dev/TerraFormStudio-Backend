@@ -1,23 +1,62 @@
-# Getting Started with [Fastify-CLI](https://www.npmjs.com/package/fastify-cli)
-This project was bootstrapped with Fastify-CLI.
+# Terra Form Studio - Backend
 
-## Available Scripts
+Fastify-powered API server for the Terra Form Studio platform.
 
-In the project directory, you can run:
+## Features
 
-### `npm run dev`
+- **Schema-first Validation**: Every route is strictly validated using Zod.
+- **Swagger Documentation**: Automated OpenAPI documentation available at `/docs`.
+- **Artisan Lifecycle**: Support for artisan applications, profiles, and product management.
+- **E-commerce Core**: Cart management, pricing validation, and order processing.
+- **Admin APIs**: System settings configuration and dashboard analytics.
+- **Media Support**: Multipart and Base64 image upload capabilities.
 
-To start the app in dev mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Tech Stack
 
-### `npm start`
+- **Framework**: Fastify
+- **Language**: TypeScript
+- **Database**: MongoDB (via Mongoose)
+- **Validation**: Zod (via fastify-type-provider-zod)
+- **Documentation**: Swagger/OpenAPI
 
-For production mode
+## Project Structure
 
-### `npm run test`
+- `src/models/`: Mongoose schemas and TypeScript interfaces.
+- `src/routes/`: Fastify route definitions grouped by domain.
+- `src/schemas/`: Reusable Zod validation schemas.
+- `src/services/`: Business logic layer.
+- `src/plugins/`: Fastify plugins (Auth, Static files, etc.).
 
-Run the test cases.
+## Setup and Installation
 
-## Learn More
+### Prerequisites
+- Node.js (v18+)
+- MongoDB instance
 
-To learn Fastify, check out the [Fastify documentation](https://fastify.dev/docs/latest/).
+### Installation
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file based on the environment requirements (MONGODB_URI, JWT_SECRET, etc.).
+
+### Running the Server
+- **Development**:
+  ```bash
+   npm run dev
+   ```
+- **Build**:
+  ```bash
+   npm run build:ts
+   ```
+- **Seeding**:
+  ```bash
+   npm run seed
+   ```
+
+## API Documentation
+Once the server is running, visit `http://localhost:3000/docs` to view the interactive Swagger UI.

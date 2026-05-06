@@ -1,6 +1,5 @@
 import { Cart, type ICart } from '../models/Cart.ts'
 import { Product } from '../models/Product.ts'
-import { Artisan } from '../models/Artisan.ts'
 import mongoose from 'mongoose'
 
 export class CartService {

@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose'
 
 export interface ISystemSetting extends Document {
   general: {
-    defaultCurrency: 'USD' | 'EUR' | 'GBP'
+    defaultCurrency: 'USD' | 'EUR' | 'GBP' | 'AED'
   }
   payments: {
     stripe: {
@@ -50,7 +50,7 @@ export interface ISystemSetting extends Document {
 const SystemSettingSchema: Schema = new Schema(
   {
     general: {
-      defaultCurrency: { type: String, enum: ['USD', 'EUR', 'GBP'], default: 'USD' }
+      defaultCurrency: { type: String, enum: ['USD', 'EUR', 'GBP', 'AED'], default: 'USD' }
     },
     payments: {
       stripe: {

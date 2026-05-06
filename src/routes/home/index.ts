@@ -1,45 +1,55 @@
-import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
-import { z } from 'zod'
-import { discoveryService } from '../../services/discovery.service.ts'
+import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { discoveryService } from "../../services/discovery.service.ts";
+import {
+  CreateHomeSectionSchema,
+  HomeSectionSchema,
+} from "../../schemas/home.schema.ts";
 
-const discoveryRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
-  fastify.get('/', {
-    schema: {
-      tags: ['Discovery'],
-      summary: 'Get active homepage configuration',
-      response: {
-        200: z.any()
+const homeRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
+  // Public route to get published homepage content
+  fastify.get(
+    "/",
+    {
+      schema: {
+        tags: ["Home"],
+        summary: "Get published homepage configuration",
+        response: {
+          200: HomeSectionSchema,
+        },
+      },
+    },
+    async () => {
+      const home = await discoveryService.getActiveHome();
+      if (!home) throw fastify.httpErrors.notFound("No published homepage found");
+      return home as any;
+    },
+  );
+
+  // Admin route to create or update homepage config
+  fastify.post(
+    "/",
+    {
+      onRequest: [fastify.authenticate],
+      schema: {
+        tags: ["Home"],
+        summary: "Create or update homepage configuration (Admin only)",
+        security: [{ bearerAuth: [] }],
+        body: CreateHomeSectionSchema,
+        response: {
+          201: HomeSectionSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const user = request.user as any;
+      if (!user.roles.includes("admin")) {
+        throw fastify.httpErrors.forbidden("Only admins can manage home layout");
       }
-    }
-  }, async () => {
-    const config = await discoveryService.getActiveHome()
-    if (!config) throw fastify.httpErrors.notFound('Active homepage configuration not found')
-    return config
-  })
 
-  // Admin routes
-  fastify.post('/sections', {
-    onRequest: [fastify.authenticate],
-    schema: {
-      tags: ['Discovery'],
-      summary: 'Create a new homepage configuration (Admin only)',
-      security: [{ bearerAuth: [] }],
-      body: z.object({
-        name: z.string(),
-        status: z.enum(['published', 'draft', 'archived']),
-        sections: z.array(z.any())
-      }),
-      response: {
-        201: z.any()
-      }
-    }
-  }, async (request, reply) => {
-    const user = request.user as any
-    if (!user.roles.includes('admin')) throw fastify.httpErrors.forbidden()
-    
-    const config = await discoveryService.createHomeConfiguration(request.body)
-    return reply.status(201).send(config)
-  })
-}
+      const home = await discoveryService.createHomeConfiguration(request.body as any);
+      return reply.status(201).send(home as any);
+    },
+  );
+};
 
-export default discoveryRoutes
+export default homeRoutes;

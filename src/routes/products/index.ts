@@ -2,6 +2,11 @@ import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { productService } from "../../services/product.service.ts";
 import { Artisan } from "../../models/Artisan.ts";
+import {
+  CreateProductSchema,
+  ProductSchema,
+  UpdateProductSchema,
+} from "../../schemas/product.schema.ts";
 
 const productRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   // Public routes
@@ -9,19 +14,20 @@ const productRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
     "/",
     {
       schema: {
-        tags: ['Products'],
-        summary: 'List all published products',
+        tags: ["Products"],
+        summary: "List all published products",
         querystring: z.object({
           material: z.string().optional(),
           technique: z.string().optional(),
         }),
         response: {
-          200: z.array(z.any()),
+          200: z.array(ProductSchema),
         },
       },
     },
     async (request) => {
-      return productService.listPublished(request.query);
+      const products = await productService.listPublished(request.query);
+      return products as any;
     },
   );
 
@@ -29,11 +35,11 @@ const productRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
     "/:slug",
     {
       schema: {
-        tags: ['Products'],
-        summary: 'Get product details by slug',
+        tags: ["Products"],
+        summary: "Get product details by slug",
         params: z.object({ slug: z.string() }),
         response: {
-          200: z.any(),
+          200: ProductSchema,
         },
       },
     },
@@ -43,7 +49,7 @@ const productRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
         `Product slug: ${request.params.slug}, found: ${product}`,
       );
       if (!product) throw fastify.httpErrors.notFound("Product not found");
-      return product;
+      return product as any;
     },
   );
 
@@ -53,34 +59,12 @@ const productRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
     {
       onRequest: [fastify.authenticate],
       schema: {
-        tags: ['Products'],
-        summary: 'Create a new product (Artisan only)',
+        tags: ["Products"],
+        summary: "Create a new product (Artisan only)",
         security: [{ bearerAuth: [] }],
-        body: z.object({
-          title: z.string(),
-          subtitle: z.string().optional(),
-          price: z.object({
-            amount: z.number(),
-          }),
-          media: z
-            .array(
-              z.object({
-                url: z.string(),
-                alt: z.string(),
-                type: z.enum(["image", "video"]).default("image"),
-                sortOrder: z.number(),
-              }),
-            )
-            .optional(),
-          inventory: z
-            .object({
-              mode: z.enum(["unique", "regular"]),
-              quantityAvailable: z.number().optional(),
-            })
-            .optional(),
-        }),
+        body: CreateProductSchema,
         response: {
-          201: z.any(),
+          201: ProductSchema,
         },
       },
     },
@@ -94,10 +78,10 @@ const productRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
         );
 
       const product = await productService.create(
-        artisan._id as string,
-        request.body,
+        (artisan._id as any).toString(),
+        request.body as any,
       );
-      return reply.status(201).send(product);
+      return reply.status(201).send(product as any);
     },
   );
 
@@ -106,13 +90,13 @@ const productRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
     {
       onRequest: [fastify.authenticate],
       schema: {
-        tags: ['Products'],
-        summary: 'Update a product',
+        tags: ["Products"],
+        summary: "Update a product",
         security: [{ bearerAuth: [] }],
         params: z.object({ id: z.string() }),
-        body: z.any(),
+        body: UpdateProductSchema,
         response: {
-          200: z.any(),
+          200: ProductSchema,
         },
       },
     },
@@ -123,14 +107,14 @@ const productRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
 
       const product = await productService.update(
         request.params.id,
-        (artisan?._id as string) || "",
-        request.body,
+        artisan?._id ? (artisan._id as any).toString() : "",
+        request.body as any,
         isAdmin,
       );
 
       if (!product)
         throw fastify.httpErrors.notFound("Product not found or unauthorized");
-      return product;
+      return product as any;
     },
   );
 
@@ -139,8 +123,8 @@ const productRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
     {
       onRequest: [fastify.authenticate],
       schema: {
-        tags: ['Products'],
-        summary: 'Soft delete (archive) a product',
+        tags: ["Products"],
+        summary: "Soft delete (archive) a product",
         security: [{ bearerAuth: [] }],
         params: z.object({ id: z.string() }),
         response: {
@@ -155,7 +139,7 @@ const productRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
 
       const success = await productService.softDelete(
         request.params.id,
-        (artisan?._id as string) || "",
+        artisan?._id ? (artisan._id as any).toString() : "",
         isAdmin,
       );
 

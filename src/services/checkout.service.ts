@@ -29,7 +29,7 @@ export class CheckoutService {
       cartId: cart._id,
       userId: new mongoose.Types.ObjectId(userId),
       priceValidation: {
-        currency: cart.currency || 'AED',
+        currency: "AED",
         subtotal: cart.totals.subtotal,
         shipping: 20, // Default shipping
         tax: 0,
