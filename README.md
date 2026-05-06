@@ -5,7 +5,7 @@ Fastify-powered API server for the Terra Form Studio platform.
 ## Features
 
 - **Schema-first Validation**: Every route is strictly validated using Zod.
-- **Swagger Documentation**: Automated OpenAPI documentation available at `/docs`.
+- **Swagger Documentation**: Automated OpenAPI documentation available at `/api/docs`.
 - **Artisan Lifecycle**: Support for artisan applications, profiles, and product management.
 - **E-commerce Core**: Cart management, pricing validation, and order processing.
 - **Admin APIs**: System settings configuration and dashboard analytics.
@@ -59,4 +59,4 @@ Fastify-powered API server for the Terra Form Studio platform.
    ```
 
 ## API Documentation
-Once the server is running, visit `http://localhost:3000/docs` to view the interactive Swagger UI.
+Once the server is running, visit `http://localhost:3000/api/docs` to view the interactive Swagger UI.
