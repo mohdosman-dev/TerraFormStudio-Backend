@@ -9,21 +9,27 @@ export const HomeSectionItemSchema = z.object({
     "collection_row",
     "editorial",
   ]),
-  title: z.string().optional().default(""),
-  subtitle: z.string().optional().default(""),
-  image: ImageSchema.optional(),
-  cta: z.object({
-    label: z.string().optional().default(""),
-    targetType: z.enum(["collection", "product", "artisan", "url"]).optional(),
-    targetId: MongoIdSchema.optional(),
-    url: z.string().optional().default(""),
-  }).optional(),
-  artisanId: z.any().optional(), // Allow populated object or ID
-  productIds: z.array(z.any()).optional(), // Allow populated objects or IDs
-  collectionIds: z.array(z.any()).optional(), // Allow populated objects or IDs
-  content: z.string().optional().default(""),
-  sortOrder: z.number().int(),
-  _id: MongoIdSchema.optional(),
+  title: z.string().nullable().optional().default(""),
+  subtitle: z.string().nullable().optional().default(""),
+  image: ImageSchema.nullable().optional(),
+  cta: z
+    .object({
+      label: z.string().nullable().optional().default(""),
+      targetType: z
+        .enum(["collection", "product", "artisan", "url"])
+        .nullable()
+        .optional(),
+      targetId: MongoIdSchema,
+      url: z.string().nullable().optional().default(""),
+    })
+    .nullable()
+    .optional(),
+  artisanId: z.any().nullable().optional(),
+  productIds: z.array(z.any()).nullable().optional().default([]),
+  collectionIds: z.array(z.any()).nullable().optional().default([]),
+  content: z.string().nullable().optional().default(""),
+  sortOrder: z.number().int().default(0),
+  _id: MongoIdSchema,
 });
 
 export const HomeSectionSchema = z.object({
@@ -39,7 +45,9 @@ export const HomeSectionSchema = z.object({
 export const CreateHomeSectionSchema = z.object({
   name: z.string(),
   status: z.enum(["published", "draft", "archived"]).optional(),
-  sections: z.array(HomeSectionItemSchema.omit({ sortOrder: true }).extend({
-    sortOrder: z.number().int().optional(),
-  })),
+  sections: z.array(
+    HomeSectionItemSchema.omit({ sortOrder: true }).extend({
+      sortOrder: z.number().int().optional(),
+    }),
+  ),
 });

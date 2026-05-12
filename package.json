@@ -12,7 +12,7 @@
     "start": "fastify start -l info -i tsx src/app.ts",
     "build:ts": "tsc",
     "watch:ts": "tsc -w",
-    "dev": "fastify start -w -l info -P -i tsx src/app.ts",
+    "dev": "fastify start -w -l info -P -i tsx -a 0.0.0.0 src/app.ts",
     "seed": "tsx scripts/seed.ts && tsx scripts/seed-homepage.ts"
   },
   "keywords": [],

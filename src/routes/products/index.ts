@@ -5,6 +5,7 @@ import { Artisan } from "../../models/Artisan.ts";
 import {
   CreateProductSchema,
   ProductSchema,
+  ProductDetailResponseSchema,
   UpdateProductSchema,
 } from "../../schemas/product.schema.ts";
 
@@ -39,15 +40,12 @@ const productRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
         summary: "Get product details by slug",
         params: z.object({ slug: z.string() }),
         response: {
-          200: ProductSchema,
+          200: ProductDetailResponseSchema,
         },
       },
     },
     async (request) => {
       const product = await productService.findBySlug(request.params.slug);
-      fastify.log.info(
-        `Product slug: ${request.params.slug}, found: ${product}`,
-      );
       if (!product) throw fastify.httpErrors.notFound("Product not found");
       return product as any;
     },

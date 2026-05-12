@@ -1,15 +1,25 @@
 import { z } from "zod";
 import mongoose from "mongoose";
 
-export const MongoIdSchema = z.union([
-  z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid MongoDB ObjectId"),
-  z.instanceof(mongoose.Types.ObjectId).transform((id) => id.toString()),
-  z.object({ _id: z.any() }).transform((obj: any) => obj._id.toString()),
-  z
-    .any()
-    .refine((val) => mongoose.Types.ObjectId.isValid(val), "Invalid ObjectId")
-    .transform((val) => val.toString()),
-]);
+export const MongoIdSchema = z
+  .union([
+    z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid MongoDB ObjectId"),
+    z.string().length(0).optional(), // Handle empty strings
+    z.instanceof(mongoose.Types.ObjectId).transform((id) => id.toString()),
+    z.object({ _id: z.any() }).transform((obj: any) => obj._id.toString()),
+    z
+      .any()
+      .refine(
+        (val) =>
+          val === null ||
+          val === undefined ||
+          mongoose.Types.ObjectId.isValid(val),
+        "Invalid ObjectId",
+      )
+      .transform((val) => val?.toString() ?? null),
+  ])
+  .nullable()
+  .optional();
 
 export const DateSchema = z.union([
   z.iso.datetime(),
@@ -17,7 +27,7 @@ export const DateSchema = z.union([
 ]);
 
 export const ImageSchema = z.object({
-  url: z.string(),
+  url: z.string().optional().default(""),
   alt: z.string().optional().default(""),
 });
 

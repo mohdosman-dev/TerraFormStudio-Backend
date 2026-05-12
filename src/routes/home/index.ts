@@ -20,7 +20,11 @@ const homeRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
     },
     async () => {
       const home = await discoveryService.getActiveHome();
-      if (!home) throw fastify.httpErrors.notFound("No published homepage found");
+      fastify.log.info(
+        `Fetched homepage configuration: ${JSON.stringify(home)}`,
+      );
+      if (!home)
+        throw fastify.httpErrors.notFound("No published homepage found");
       return home as any;
     },
   );
@@ -43,10 +47,14 @@ const homeRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
     async (request, reply) => {
       const user = request.user as any;
       if (!user.roles.includes("admin")) {
-        throw fastify.httpErrors.forbidden("Only admins can manage home layout");
+        throw fastify.httpErrors.forbidden(
+          "Only admins can manage home layout",
+        );
       }
 
-      const home = await discoveryService.createHomeConfiguration(request.body as any);
+      const home = await discoveryService.createHomeConfiguration(
+        request.body as any,
+      );
       return reply.status(201).send(home as any);
     },
   );

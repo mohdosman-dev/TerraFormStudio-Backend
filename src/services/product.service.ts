@@ -25,8 +25,7 @@ export class ProductService {
     const query = { status: "published", ...filters };
     return Product.find(query)
       .sort({ createdAt: -1 })
-      .populate("artisanId")
-      .populate("discovery.relatedProductIds");
+      .populate("artisanId");
   }
 
   async update(

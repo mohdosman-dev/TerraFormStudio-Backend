@@ -1,9 +1,31 @@
 import { z } from "zod";
 import { DateSchema, MediaSchema, MongoIdSchema, PriceSchema } from "./common.schema.ts";
+import { ArtisanSchema } from "./artisan.schema.ts";
 
-export const ProductSchema = z.object({
+export const RelatedProductSchema = z.object({
+  _id: MongoIdSchema,
+  slug: z.string(),
+  title: z.string(),
+  subtitle: z.string().optional(),
+  price: PriceSchema,
+  media: z.array(MediaSchema).optional(),
+});
+
+const DiscoverySchema = z.object({
+  collectionIds: z.array(MongoIdSchema).optional(),
+  tags: z.array(z.string()).optional(),
+  relatedProductIds: z.array(MongoIdSchema).optional(),
+}).optional();
+
+const DiscoveryDetailSchema = z.object({
+  collectionIds: z.array(MongoIdSchema).optional(),
+  tags: z.array(z.string()).optional(),
+  relatedProductIds: z.array(RelatedProductSchema).optional(),
+}).optional();
+
+const ProductFields = {
   _id: MongoIdSchema.optional(),
-  artisanId: MongoIdSchema,
+  artisanId: ArtisanSchema.optional(),
   slug: z.string(),
   title: z.string(),
   subtitle: z.string().optional(),
@@ -27,11 +49,6 @@ export const ProductSchema = z.object({
     quantityAvailable: z.number().default(0),
     status: z.enum(["available", "sold", "unavailable", "made_to_order"]),
   }),
-  discovery: z.object({
-    collectionIds: z.array(MongoIdSchema).optional(),
-    tags: z.array(z.string()).optional(),
-    relatedProductIds: z.array(MongoIdSchema).optional(),
-  }).optional(),
   seo: z.object({
     title: z.string().optional(),
     description: z.string().optional(),
@@ -41,6 +58,16 @@ export const ProductSchema = z.object({
   createdAt: DateSchema.optional(),
   updatedAt: DateSchema.optional(),
   __v: z.number().optional(),
+} as const;
+
+export const ProductSchema = z.object({
+  ...ProductFields,
+  discovery: DiscoverySchema,
+});
+
+export const ProductDetailResponseSchema = z.object({
+  ...ProductFields,
+  discovery: DiscoveryDetailSchema,
 });
 
 export const CreateProductSchema = z.object({

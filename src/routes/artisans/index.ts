@@ -6,23 +6,40 @@ import {
   CreateArtisanSchema,
   UpdateArtisanSchema,
 } from "../../schemas/artisan.schema.ts";
+import { ProductSchema } from "../../schemas/product.schema.ts";
+
+const ArtisanProfileResponseSchema = ArtisanSchema.extend({
+  products: z.array(ProductSchema),
+});
 
 const artisanRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
+  const PaginatedArtisansSchema = z.object({
+    data: z.array(ArtisanSchema),
+    total: z.number(),
+    page: z.number(),
+    limit: z.number(),
+    totalPages: z.number(),
+  });
+
   // Public routes
   fastify.get(
     "/",
     {
       schema: {
         tags: ["Artisans"],
-        summary: "List all published artisans",
+        summary: "List all published artisans (paginated)",
+        querystring: z.object({
+          page: z.coerce.number().int().positive().default(1),
+          limit: z.coerce.number().int().positive().max(50).default(10),
+        }),
         response: {
-          200: z.array(ArtisanSchema),
+          200: PaginatedArtisansSchema,
         },
       },
     },
-    async () => {
-      const artisans = await artisanService.listPublished();
-      return artisans as any;
+    async (request) => {
+      const { page, limit } = request.query;
+      return await artisanService.listPublished(page, limit) as any;
     },
   );
 
@@ -31,17 +48,22 @@ const artisanRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
     {
       schema: {
         tags: ["Artisans"],
-        summary: "Get artisan details by slug",
+        summary: "Get artisan details by slug with available works",
         params: z.object({ slug: z.string() }),
         response: {
-          200: ArtisanSchema,
+          200: ArtisanProfileResponseSchema,
         },
       },
     },
     async (request) => {
-      const artisan = await artisanService.findBySlug(request.params.slug);
+      const { artisan, products } = await artisanService.findBySlugWithProducts(
+        request.params.slug,
+      );
+      fastify.log.info(
+        `Artisan slug: ${request.params.slug}, found: ${artisan}, products count: ${products.length}`,
+      );
       if (!artisan) throw fastify.httpErrors.notFound("Artisan not found");
-      return artisan as any;
+      return { ...artisan.toObject(), products } as any;
     },
   );
 
