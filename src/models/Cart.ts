@@ -16,6 +16,8 @@ export interface ICart extends Document {
     grandTotal: number
   }
   expiresAt: Date
+  mergedToUserId?: mongoose.Types.ObjectId
+  mergedAt?: Date
   createdAt: Date
   updatedAt: Date
 }
@@ -43,7 +45,9 @@ const CartSchema: Schema = new Schema(
     expiresAt: {
       type: Date,
       default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
-    }
+    },
+    mergedToUserId: { type: Schema.Types.ObjectId, ref: 'User', required: false },
+    mergedAt: { type: Date, required: false }
   },
   { timestamps: true }
 )

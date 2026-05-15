@@ -28,14 +28,13 @@ describe('Discovery & Cart Routes', () => {
     // For this integration test, let's assume we have a way to get a product.
     
     // Apply as artisan
-    const artisanRes = await app.inject({
+    await app.inject({
       method: 'POST',
       url: '/artisans/apply',
       headers: { authorization: `Bearer ${authToken}` },
       payload: { displayName: 'Cart Artist', brandName: 'Cart Studio' }
     })
-    const artisan = JSON.parse(artisanRes.payload)
-    
+
     // Create product
     const productRes = await app.inject({
       method: 'POST',

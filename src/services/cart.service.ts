@@ -8,15 +8,22 @@ export class CartService {
       ? { userId: new mongoose.Types.ObjectId(identifier.userId), status: 'active' as const }
       : { guestId: identifier.guestId, status: 'active' as const }
 
-    let cart = await Cart.findOne(query)
-    if (!cart) {
-      const doc: any = { status: 'active', items: [] }
-      if (identifier.userId) doc.userId = new mongoose.Types.ObjectId(identifier.userId)
-      if (identifier.guestId) doc.guestId = identifier.guestId
-      cart = new Cart(doc)
-      await cart.save()
+    const update: any = {
+      $setOnInsert: {
+        status: 'active',
+        items: []
+      }
     }
-    cart = await cart.populate('items.productId')
+
+    if (identifier.userId) {
+      update.$setOnInsert.userId = new mongoose.Types.ObjectId(identifier.userId)
+    }
+    if (identifier.guestId) {
+      update.$setOnInsert.guestId = identifier.guestId
+    }
+
+    const cart = await Cart.findOneAndUpdate(query, update, { upsert: true, new: true })
+    await cart.populate('items.productId')
     return cart
   }
 
@@ -32,7 +39,10 @@ export class CartService {
       throw new Error('Product not available')
     }
 
-    const itemIndex = cart.items.findIndex(item => item.productId.toString() === productId)
+    const itemIndex = cart.items.findIndex(item => {
+      const itemProductId = (item.productId as any)?._id ?? item.productId
+      return itemProductId.toString() === productId
+    })
 
     if (itemIndex > -1) {
       cart.items[itemIndex].quantity += quantity
@@ -60,7 +70,10 @@ export class CartService {
     const cart = await Cart.findOne(query)
     if (!cart) return null
 
-    cart.items = (cart.items as any).filter((item: any) => item.productId.toString() !== productId)
+    cart.items = (cart.items as any).filter((item: any) => {
+      const itemProductId = item.productId?._id ?? item.productId
+      return itemProductId.toString() !== productId
+    })
 
     await this.calculateTotals(cart)
     await cart.save()
@@ -68,29 +81,56 @@ export class CartService {
   }
 
   async mergeGuestCart(guestId: string, userId: string): Promise<ICart> {
-    const guestCart = await Cart.findOne({ guestId, status: 'active' })
-    const userCart = await this.getOrCreateCart({ userId })
+    const session = await mongoose.startSession()
 
-    if (!guestCart || guestCart.items.length === 0) return userCart
+    return await session.withTransaction(async () => {
+      const guestCart = await Cart.findOne({ guestId, status: 'active' }).session(session)
 
-    for (const guestItem of guestCart.items) {
-      const existingIndex = userCart.items.findIndex(
-        item => item.productId.toString() === guestItem.productId.toString(),
-      )
-
-      if (existingIndex > -1) {
-        userCart.items[existingIndex].quantity += guestItem.quantity
-      } else {
-        userCart.items.push(guestItem)
+      // Check idempotency: skip if already merged
+      if (guestCart && (guestCart as any).mergedToUserId) {
+        const userCart = await this.getOrCreateCart({ userId })
+        return userCart
       }
-    }
 
-    guestCart.status = 'completed'
-    await guestCart.save()
+      const userCart = await Cart.findOne({
+        userId: new mongoose.Types.ObjectId(userId),
+        status: 'active'
+      }).session(session)
 
-    await this.calculateTotals(userCart)
-    await userCart.save()
-    return userCart.populate('items.productId')
+      if (!userCart) {
+        // Create user cart if it doesn't exist
+        const newUserCart = await this.getOrCreateCart({ userId })
+        return newUserCart
+      }
+
+      if (!guestCart || guestCart.items.length === 0) return userCart
+
+      for (const guestItem of guestCart.items) {
+        const guestProductId = (guestItem.productId as any)?._id ?? guestItem.productId
+        const existingIndex = userCart.items.findIndex(item => {
+          const itemProductId = (item.productId as any)?._id ?? item.productId
+          return itemProductId.toString() === guestProductId.toString()
+        })
+
+        if (existingIndex > -1) {
+          userCart.items[existingIndex].quantity += guestItem.quantity
+        } else {
+          userCart.items.push(guestItem)
+        }
+      }
+
+      // Mark guest cart as merged for idempotency
+      guestCart.status = 'completed';
+      (guestCart as any).mergedToUserId = new mongoose.Types.ObjectId(userId);
+      (guestCart as any).mergedAt = new Date()
+      await guestCart.save({ session })
+
+      await this.calculateTotals(userCart)
+      await userCart.save({ session })
+
+      await userCart.populate('items.productId')
+      return userCart
+    }).finally(() => session.endSession())
   }
 
   async updateItemQuantity(
@@ -105,11 +145,17 @@ export class CartService {
     const cart = await Cart.findOne(query)
     if (!cart) return null
 
-    const item = cart.items.find(item => item.productId.toString() === productId)
+    const item = cart.items.find(item => {
+      const itemProductId = (item.productId as any)?._id ?? item.productId
+      return itemProductId.toString() === productId
+    })
     if (!item) return null
 
     if (quantity <= 0) {
-      cart.items = (cart.items as any).filter((item: any) => item.productId.toString() !== productId)
+      cart.items = (cart.items as any).filter((item: any) => {
+        const itemProductId = item.productId?._id ?? item.productId
+        return itemProductId.toString() !== productId
+      })
     } else {
       item.quantity = quantity
     }
