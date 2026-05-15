@@ -13,7 +13,7 @@ export class OrderService {
       throw new Error('Checkout session not ready for completion')
     }
 
-    const cart = await Cart.findById(session.cartId).populate('userId')
+    const cart = await Cart.findById(session.cartId).populate(['userId', 'items.productId'])
     if (!cart) throw new Error('Cart not found')
 
     const user = await User.findById(userId)
@@ -22,17 +22,31 @@ export class OrderService {
     // Generate Order Number
     const orderNumber = await this.generateOrderNumber()
 
-    // Create Order items from cart snapshots
-    const orderItems = cart.items.map(item => ({
-      productId: item.productId,
-      titleSnapshot: item.titleSnapshot,
-      slugSnapshot: '', // would need to populate product or store in cart
-      artisanSnapshot: item.artisanSnapshot,
-      imageSnapshot: item.imageSnapshot,
-      unitPrice: item.priceSnapshot,
-      quantity: item.quantity,
-      lineTotal: item.priceSnapshot.amount * item.quantity
-    }))
+    // Create Order items with historical snapshots from populated product data
+    const orderItems = cart.items.map(item => {
+      const product = (item as any).productId as any
+      return {
+        productId: product._id,
+        titleSnapshot: product.title || '',
+        slugSnapshot: product.slug || '',
+        artisanSnapshot: {
+          artisanId: product.artisanId?._id || product.artisanId,
+          displayName: product.artisanId?.displayName || '',
+        },
+        imageSnapshot: product.media?.[0]?.url || '',
+        specificationSnapshot: {
+          material: product.specifications?.material,
+          technique: product.specifications?.technique,
+          glaze: product.specifications?.glaze,
+        },
+        unitPrice: {
+          amount: product.price?.amount || 0,
+          currency: product.price?.currency || 'AED',
+        },
+        quantity: item.quantity,
+        lineTotal: (product.price?.amount || 0) * item.quantity,
+      }
+    })
 
     const order = new Order({
       orderNumber,

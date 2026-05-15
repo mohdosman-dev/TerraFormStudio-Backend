@@ -13,8 +13,9 @@ export class CheckoutService {
     // Check availability and lock items
     for (const item of cart.items) {
       const product = await Product.findById(item.productId)
-      if (!product || product.inventory.status !== 'available' || product.inventory.quantityAvailable < item.quantity) {
-        throw new Error(`Product ${item.titleSnapshot} is no longer available`)
+      if (!product) throw new Error('Product not found')
+      if (product.inventory.status !== 'available' || product.inventory.quantityAvailable < item.quantity) {
+        throw new Error(`Product ${product.title} is no longer available`)
       }
     }
 

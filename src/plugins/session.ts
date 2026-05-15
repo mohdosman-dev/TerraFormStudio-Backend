@@ -3,7 +3,8 @@ import { v4 as uuidv4 } from 'uuid'
 
 export default fp(async (fastify) => {
   fastify.addHook('onRequest', async (request, reply) => {
-    let guestId = request.cookies.guestId
+    const headerToken = request.headers['x-guest-token'] as string | undefined
+    let guestId = request.cookies.guestId || headerToken
 
     if (!guestId) {
       guestId = uuidv4()
