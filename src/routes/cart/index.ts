@@ -8,6 +8,13 @@ import {
   UpdateCartItemSchema,
 } from "../../schemas/cart.schema.ts";
 
+/**
+ * Resolve a cart identifier from the request for either an authenticated user or a guest.
+ *
+ * @param request - Incoming request object which may contain `user.id` (authenticated) or `guestId` (guest)
+ * @returns An object containing `userId` when the request carries an authenticated user, or `guestId` when a guest identifier is present
+ * @throws Error when neither `user.id` nor `guestId` is available on the request
+ */
 function getIdentifier(request: any): { userId?: string; guestId?: string } {
   const user = request.user as any;
   if (user?.id) return { userId: user.id };
