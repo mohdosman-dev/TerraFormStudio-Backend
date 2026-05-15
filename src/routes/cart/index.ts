@@ -27,12 +27,10 @@ const cartRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
   fastify.addHook("onRequest", async (request, reply) => {
     const authHeader = request.headers.authorization;
     if (authHeader?.startsWith("Bearer ")) {
-      try {
-        await request.jwtVerify();
-      } catch {
-        // token invalid — continue as guest
-      }
+      // If Bearer token is provided, it must be valid
+      await request.jwtVerify();
     }
+    // If no Authorization header, continue as guest
   });
 
   fastify.get(
@@ -139,7 +137,11 @@ const cartRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
     },
     async (request) => {
       const user = request.user as any;
-      const { guestId } = request.body;
+      // Use server-side session guestId, not client-supplied value
+      const guestId = request.guestId;
+      if (!guestId) {
+        throw fastify.httpErrors.badRequest("No guest cart session to merge");
+      }
       const cart = await cartService.mergeGuestCart(guestId, user.id);
       return cart as any;
     },

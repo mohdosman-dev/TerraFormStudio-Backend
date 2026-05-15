@@ -13,7 +13,13 @@ export class OrderService {
       throw new Error('Checkout session not ready for completion')
     }
 
-    const cart = await Cart.findById(session.cartId).populate(['userId', 'items.productId'])
+    const cart = await Cart.findById(session.cartId).populate([
+      'userId',
+      {
+        path: 'items.productId',
+        populate: { path: 'artisanId' }
+      }
+    ])
     if (!cart) throw new Error('Cart not found')
 
     const user = await User.findById(userId)
@@ -25,6 +31,9 @@ export class OrderService {
     // Create Order items with historical snapshots from populated product data
     const orderItems = cart.items.map(item => {
       const product = (item as any).productId as any
+      if (!product) {
+        throw new Error('Product data missing for cart item')
+      }
       return {
         productId: product._id,
         titleSnapshot: product.title || '',
@@ -47,6 +56,14 @@ export class OrderService {
         lineTotal: (product.price?.amount || 0) * item.quantity,
       }
     })
+
+    // Validate that computed item subtotal matches session.priceValidation.subtotal
+    const computedSubtotal = orderItems.reduce((sum, item) => sum + item.lineTotal, 0)
+    if (Math.abs(computedSubtotal - session.priceValidation.subtotal) > 0.01) {
+      throw new Error(
+        `Price mismatch: computed subtotal ${computedSubtotal} does not match validated subtotal ${session.priceValidation.subtotal}`
+      )
+    }
 
     const order = new Order({
       orderNumber,

@@ -4,8 +4,6 @@ import { build } from '../helper.ts'
 describe('Artisan & Catalog Routes', () => {
   let app: any
   let authToken: string
-  let adminToken: string
-  let artisanId: string
   let productSlug: string
 
   beforeAll(async () => {
@@ -49,7 +47,6 @@ describe('Artisan & Catalog Routes', () => {
     const body = JSON.parse(res.payload)
     expect(body.status).toBe('pending')
     expect(body.slug).toBe('test-studio')
-    artisanId = body._id
   })
 
   it('should not list pending artisans publicly', async () => {

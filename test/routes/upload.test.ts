@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { build } from '../helper.ts'
 import FormData from 'form-data'
-import { Readable } from 'node:stream'
 
 describe('Upload Routes', () => {
   let app: any
