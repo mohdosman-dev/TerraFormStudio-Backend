@@ -9,6 +9,10 @@ export const RelatedProductSchema = z.object({
   subtitle: z.string().optional(),
   price: PriceSchema,
   media: z.array(MediaSchema).optional(),
+  descriptionLong: z.string().optional(),
+  specifications: z.object({
+    technique: z.string().optional(),
+  }).optional(),
 });
 
 const DiscoverySchema = z.object({
@@ -23,7 +27,7 @@ const DiscoveryDetailSchema = z.object({
   relatedProductIds: z.array(RelatedProductSchema).optional(),
 }).optional();
 
-const ProductFields = {
+export const ProductFields = {
   _id: MongoIdSchema.optional(),
   artisanId: ArtisanSchema.optional(),
   slug: z.string(),

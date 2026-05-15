@@ -1,20 +1,11 @@
 import mongoose, { Schema, Document } from 'mongoose'
 
 export interface ICart extends Document {
-  userId: mongoose.Types.ObjectId
+  userId?: mongoose.Types.ObjectId
+  guestId?: string
   status: 'active' | 'completed' | 'abandoned'
   items: Array<{
     productId: mongoose.Types.ObjectId
-    titleSnapshot: string
-    artisanSnapshot: {
-      artisanId: mongoose.Types.ObjectId
-      displayName: string
-    }
-    imageSnapshot: string
-    priceSnapshot: {
-      amount: number
-      currency: string
-    }
     quantity: number
     addedAt: Date
   }>
@@ -31,7 +22,8 @@ export interface ICart extends Document {
 
 const CartSchema: Schema = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true, index: true },
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: false, unique: true, sparse: true },
+    guestId: { type: String, required: false, index: true },
     status: {
       type: String,
       enum: ['active', 'completed', 'abandoned'],
@@ -39,16 +31,6 @@ const CartSchema: Schema = new Schema(
     },
     items: [{
       productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
-      titleSnapshot: String,
-      artisanSnapshot: {
-        artisanId: { type: Schema.Types.ObjectId, ref: 'Artisan' },
-        displayName: String
-      },
-      imageSnapshot: String,
-      priceSnapshot: {
-        amount: Number,
-        currency: { type: String, default: 'AED' }
-      },
       quantity: { type: Number, default: 1 },
       addedAt: { type: Date, default: Date.now }
     }],
