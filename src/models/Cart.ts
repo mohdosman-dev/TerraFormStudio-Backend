@@ -22,7 +22,7 @@ export interface ICart extends Document {
 
 const CartSchema: Schema = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: false, unique: true, sparse: true },
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     guestId: { type: String, required: false, index: true },
     status: {
       type: String,
@@ -46,6 +46,14 @@ const CartSchema: Schema = new Schema(
     }
   },
   { timestamps: true }
+)
+
+CartSchema.index(
+  { userId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { userId: { $type: 'objectId' } }
+  }
 )
 
 export const Cart = mongoose.model<ICart>('Cart', CartSchema)

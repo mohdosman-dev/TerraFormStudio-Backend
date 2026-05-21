@@ -1,6 +1,17 @@
 import { z } from "zod";
 import { DateSchema, MongoIdSchema } from "./common.schema.ts";
 
+export const DeliveryMethodSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().default(""),
+  price: z.number(),
+  currency: z.string().default("AED"),
+  estimatedDays: z.string().default(""),
+  isActive: z.boolean().default(true),
+  isDefault: z.boolean().default(false),
+});
+
 export const SystemSettingSchema = z.object({
   _id: MongoIdSchema.optional(),
   general: z.object({
@@ -20,6 +31,7 @@ export const SystemSettingSchema = z.object({
       isVerified: z.boolean().default(false),
     }),
   }),
+  deliveryMethods: z.array(DeliveryMethodSchema).default([]),
   legal: z.object({
     termsAndConditions: z.object({
       content: z.string().default(""),

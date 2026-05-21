@@ -1,5 +1,16 @@
 import mongoose, { Schema, Document } from 'mongoose'
 
+export interface IDeliveryMethod {
+  id: string
+  name: string
+  description: string
+  price: number
+  currency: string
+  estimatedDays: string
+  isActive: boolean
+  isDefault: boolean
+}
+
 export interface ISystemSetting extends Document {
   general: {
     defaultCurrency: 'USD' | 'EUR' | 'GBP' | 'AED'
@@ -18,6 +29,7 @@ export interface ISystemSetting extends Document {
       isVerified: boolean
     }
   }
+  deliveryMethods: IDeliveryMethod[]
   legal: {
     termsAndConditions: {
       content: string
@@ -47,6 +59,20 @@ export interface ISystemSetting extends Document {
   updatedAt: Date
 }
 
+const DeliveryMethodSchema: Schema = new Schema(
+  {
+    id: { type: String, required: true },
+    name: { type: String, required: true },
+    description: { type: String, default: '' },
+    price: { type: Number, required: true },
+    currency: { type: String, default: 'AED' },
+    estimatedDays: { type: String, default: '' },
+    isActive: { type: Boolean, default: true },
+    isDefault: { type: Boolean, default: false }
+  },
+  { _id: false }
+)
+
 const SystemSettingSchema: Schema = new Schema(
   {
     general: {
@@ -66,6 +92,7 @@ const SystemSettingSchema: Schema = new Schema(
         isVerified: { type: Boolean, default: false }
       }
     },
+    deliveryMethods: { type: [DeliveryMethodSchema], default: [] },
     legal: {
       termsAndConditions: {
         content: { type: String, default: '' },

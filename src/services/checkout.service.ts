@@ -1,9 +1,32 @@
 import { CheckoutSession, type ICheckoutSession } from '../models/CheckoutSession.ts'
 import { Cart } from '../models/Cart.ts'
 import { Product } from '../models/Product.ts'
+import { settingsService } from './settings.service.ts'
 import mongoose from 'mongoose'
 
 export class CheckoutService {
+  private async getDefaultShipping(): Promise<{ price: number; currency: string }> {
+    const settings = await settingsService.getSettings()
+    const defaultMethod = settings.deliveryMethods.find((dm) => dm.isActive && dm.isDefault)
+    if (defaultMethod) {
+      return { price: defaultMethod.price, currency: defaultMethod.currency }
+    }
+    const firstActive = settings.deliveryMethods.find((dm) => dm.isActive)
+    if (firstActive) {
+      return { price: firstActive.price, currency: firstActive.currency }
+    }
+    return { price: 0, currency: 'AED' }
+  }
+
+  private async getDeliveryMethodPrice(deliveryOptionId: string): Promise<{ price: number; currency: string }> {
+    const settings = await settingsService.getSettings()
+    const method = settings.deliveryMethods.find((dm) => dm.id === deliveryOptionId && dm.isActive)
+    if (method) {
+      return { price: method.price, currency: method.currency }
+    }
+    return { price: 0, currency: 'AED' }
+  }
+
   async initCheckout(userId: string): Promise<ICheckoutSession> {
     const cart = await Cart.findOne({ userId, status: 'active' })
     if (!cart || cart.items.length === 0) {
@@ -22,19 +45,21 @@ export class CheckoutService {
     // Atomic Lock
     for (const item of cart.items) {
       await Product.findByIdAndUpdate(item.productId, {
-        $set: { 'inventory.status': 'available' } // In a real scenario we might move to 'locked'
+        $set: { 'inventory.status': 'available' }
       })
     }
+
+    const defaultShipping = await this.getDefaultShipping()
 
     const session = new CheckoutSession({
       cartId: cart._id,
       userId: new mongoose.Types.ObjectId(userId),
       priceValidation: {
-        currency: "AED",
+        currency: defaultShipping.currency,
         subtotal: cart.totals.subtotal,
-        shipping: 20, // Default shipping
+        shipping: defaultShipping.price,
         tax: 0,
-        grandTotal: cart.totals.subtotal + 20,
+        grandTotal: cart.totals.subtotal + defaultShipping.price,
         validatedAt: new Date()
       }
     })
@@ -47,7 +72,17 @@ export class CheckoutService {
     const session = await CheckoutSession.findOne({ _id: sessionId, userId, status: 'in_progress' })
     if (!session) return null
 
-    session.shipping = shippingData
+    // Recalculate shipping if deliveryOption changed
+    if (shippingData.deliveryOption) {
+      const { price, currency } = await this.getDeliveryMethodPrice(shippingData.deliveryOption)
+      session.shipping = shippingData
+      session.priceValidation.shipping = price
+      session.priceValidation.currency = currency
+      session.priceValidation.grandTotal = session.priceValidation.subtotal + price + session.priceValidation.tax
+      session.priceValidation.validatedAt = new Date()
+    } else {
+      session.shipping = shippingData
+    }
     session.stepState.shippingCompleted = true
     await session.save()
     return session

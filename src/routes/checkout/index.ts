@@ -2,13 +2,37 @@ import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { checkoutService } from "../../services/checkout.service.ts";
 import { orderService } from "../../services/order.service.ts";
+import { settingsService } from "../../services/settings.service.ts";
 import {
   CheckoutSessionSchema,
   SetShippingSchema,
 } from "../../schemas/checkout.schema.ts";
+import { DeliveryMethodSchema } from "../../schemas/system.schema.ts";
 import { OrderSchema } from "../../schemas/order.schema.ts";
 
 const checkoutRoutes: FastifyPluginAsyncZod = async (fastify, _opts) => {
+  fastify.get(
+    "/delivery-methods",
+    {
+      schema: {
+        tags: ["Checkout"],
+        summary: "Get active delivery methods",
+        response: {
+          200: z.object({
+            deliveryMethods: z.array(DeliveryMethodSchema),
+          }),
+        },
+      },
+    },
+    async (_request) => {
+      const settings = await settingsService.getSettings();
+      const active = settings.deliveryMethods.filter(
+        (dm) => dm.isActive,
+      );
+      return { deliveryMethods: active };
+    },
+  );
+
   fastify.post(
     "/start",
     {
